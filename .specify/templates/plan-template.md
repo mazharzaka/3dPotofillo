@@ -31,7 +31,10 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Feature-Based Architecture**: Does the plan place domain logic in `src/features/` instead of global scopes?
+- [ ] **Clean Code**: Are the proposed implementations prioritizing small, readable, and decoupled functions/components?
+- [ ] **Next.js Standards**: Are Server Components used by default? Is client-side state minimized?
+- [ ] **Typing**: Are strict TypeScript interfaces defined for new data structures and props without using `any`?
 
 ## Project Structure
 
@@ -56,15 +59,19 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+# [REMOVE IF UNUSED] Option 1: Next.js Feature-Based Project (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── app/
+├── components/      # Global UI components
+├── features/        # Feature modules
+│   └── [feature]/
+│       ├── components/
+│       ├── hooks/
+│       ├── lib/
+│       └── types/
+└── lib/             # Global utilities
 
 tests/
-├── contract/
 ├── integration/
 └── unit/
 

@@ -1,50 +1,55 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: [NEW] → 1.0.0
+- Modified principles:
+  - [PRINCIPLE_1_NAME] → Feature-Based Architecture
+  - [PRINCIPLE_2_NAME] → Clean Code & React Best Practices
+  - [PRINCIPLE_3_NAME] → Next.js App Router Standards
+  - [PRINCIPLE_4_NAME] → Strict Typing (TypeScript)
+  - [PRINCIPLE_5_NAME] → Simplicity & Scalability
+- Added sections: Technology Stack Requirements, Quality & Workflow Gates
+- Removed sections: None
+- Templates requiring updates:
+  - ✅ plan-template.md 
+  - ✅ spec-template.md 
+  - ✅ tasks-template.md
+- Follow-up TODOs: None
+-->
+
+# Portfolio Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Feature-Based Architecture
+Every major piece of functionality must be encapsulated within a feature-specific directory under `src/features/`. Each feature module must cleanly export its public interfaces and internalize its own components, hooks, services, and types to prevent cross-domain coupling.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Clean Code & React Best Practices
+All code must prioritize readability, maintainability, and simplicity. Functions and components should be small, focused, and do one thing well. Avoid deeply nested logic and prefer descriptive, self-documenting naming conventions. Presentational UI must be decoupled from business logic.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Next.js App Router Standards
+The application must strictly adhere to Next.js App Router conventions. Server Components should be used by default to maximize performance and SEO. Client Components (`"use client"`) must only be used when interactivity or client-side state is explicitly required.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Strict Typing (TypeScript)
+TypeScript must be used strictly across the entire codebase. The use of `any` is strictly prohibited. All props, state, API responses, and shared data models must have explicitly defined interfaces or types to ensure type safety.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Simplicity & Scalability
+Start simple using YAGNI (You Aren't Gonna Need It) principles. Architecture and abstraction should only be introduced when there is a concrete need. The folder structure must scale predictably as the application grows without becoming a monolith of unorganized files.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Stack Requirements
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS (preferred) or Vanilla CSS (if explicitly chosen), strictly modularized
+- **Project Structure**: Feature-based slices (e.g., `src/features/[featureName]/`)
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Quality & Workflow Gates
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- **Code Review**: All logic must be reviewed against the Core Principles before merging.
+- **Organization Check**: No domain-specific components or logic should reside in global `src/components/` or `src/hooks/`; they must belong to their respective `src/features/`.
+- **Performance**: Server Components are the default. Client side bundles must be kept as small as possible.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+The Portfolio Constitution supersedes all other architectural practices. Any changes to the core technology stack or folder structure paradigm require an amendment to this living document. All new feature planning (`speckit.plan`) must pass the Constitution Check against these principles.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-03-12 | **Last Amended**: 2026-03-12
