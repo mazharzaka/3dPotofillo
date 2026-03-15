@@ -10,7 +10,7 @@ export default function Home() {
         sequences={[
           { folder: "video-split", totalFrames: 168 },
           { folder: "cert-split", totalFrames: 216 },
-          { folder: "showcert-split", totalFrames: 216 },
+          { folder: "showcert-split", totalFrames: 224 },
         ]}
         BEATS={BEATSHero}
       />

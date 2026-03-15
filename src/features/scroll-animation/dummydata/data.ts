@@ -28,7 +28,7 @@ const BEATSHero = [
   },
   {
     from: 0.82,
-    to: 1.0,
+    to: 0.95,
     align: "center" as const,
     eyebrow: "The full picture.",
     headline: "Let's build\ntogether.",

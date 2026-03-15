@@ -32,6 +32,7 @@ export const ComponentScroll = ({
   const [loadedCount, setLoadedCount] = useState(0);
   const [allLoaded, setAllLoaded] = useState(false);
   const [mobileHeight, setMobileHeight] = useState<number | null>(null);
+  const [coverScale, setCoverScale] = useState(1);
 
   const seqs =
     sequences || (folder && totalFrames ? [{ folder, totalFrames }] : []);
@@ -76,24 +77,11 @@ export const ComponentScroll = ({
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio ?? 1;
-    // Use CSS pixel dimensions for drawing calculations
     const cw = canvas.width / dpr;
     const ch = canvas.height / dpr;
-    const iw = img.naturalWidth;
-    const ih = img.naturalHeight;
-
-    // "contain" for mobile (fully visible), "cover" for desktop (fill canvas)
-    const isMobile = window.innerWidth < 768;
-    const scale = isMobile
-      ? Math.min(cw / iw, ch / ih)
-      : Math.max(cw / iw, ch / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
 
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.drawImage(img, 0, 0, cw, ch);
   }, []);
 
   /* ── Resize canvas (DPR-aware, fills viewport) ── */
@@ -105,15 +93,15 @@ export const ComponentScroll = ({
     if (ctx) ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     const dpr = window.devicePixelRatio ?? 1;
-    const isMobile = window.innerWidth < 768;
     const w = window.innerWidth;
+    const isMobile = w < 768;
 
     // Get image dimensions or fallback to 16:9
     const img = framesRef.current[0];
     const iw = img?.naturalWidth || 1920;
     const ih = img?.naturalHeight || 1080;
 
-    // On mobile, height matches aspect ratio exactly so there's no empty background area
+    // Mobile wrapper matches image aspect ratio exactly
     const h = isMobile ? w * (ih / iw) : window.innerHeight;
 
     if (isMobile) {
@@ -122,10 +110,18 @@ export const ComponentScroll = ({
       setMobileHeight(null);
     }
 
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = w + "px";
-    canvas.style.height = h + "px";
+    // Set canvas dimensions to fit strictly inside the screen ("contain")
+    const containScale = Math.min(w / iw, h / ih);
+    const canvasCssWidth = iw * containScale;
+    const canvasCssHeight = ih * containScale;
+
+    // Calculate scale factor to make the contained canvas "cover" the screen
+    setCoverScale(Math.max(w / canvasCssWidth, h / canvasCssHeight));
+
+    canvas.width = canvasCssWidth * dpr;
+    canvas.height = canvasCssHeight * dpr;
+    canvas.style.width = canvasCssWidth + "px";
+    canvas.style.height = canvasCssHeight + "px";
 
     if (ctx) ctx.scale(dpr, dpr);
     drawFrame(currentFrameRef.current);
@@ -222,6 +218,10 @@ export const ComponentScroll = ({
           className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none"
           style={{
             opacity: useTransform(scrollYProgress, [0.85, 1], [0, 1]),
+            backgroundImage:
+              "radial-gradient(#cca362 0.5px, transparent 0.5px), radial-gradient(#cca362 0.5px, #050532 0.5px)",
+            backgroundSize: "20px 20px",
+            backgroundPosition: "0 0, 10px 10px",
           }}
         >
           {/* Abstract SVG Background */}
@@ -253,12 +253,13 @@ export const ComponentScroll = ({
           className="absolute inset-0 mx-auto my-auto z-10"
           style={{
             display: "block",
-            scale: useTransform(scrollYProgress, [0.85, 1], [1, 0.45]),
+            scale: useTransform(scrollYProgress, [0.85, 1], [coverScale, 0.6]),
             borderRadius: useTransform(
               scrollYProgress,
               [0.85, 1],
               ["0px", "1.5rem"],
             ),
+
             transformOrigin: "center center",
             boxShadow: useTransform(
               scrollYProgress,
@@ -281,11 +282,11 @@ export const ComponentScroll = ({
           >
             <h1
               style={{ color: "#cca362" }}
-              className="text-[2.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
+              className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
             >
               Digital Egypt
             </h1>
-            <h2 className="text-[2.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
+            <h2 className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
               Youth Program
             </h2>
           </motion.div>
@@ -296,11 +297,11 @@ export const ComponentScroll = ({
           >
             <h1
               style={{ color: "#cca362" }}
-              className="text-[1.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
+              className="text-[1.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
             >
               Mean-Stack
             </h1>
-            <h2 className="text-[2.5rem] sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
+            <h2 className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
               Web Dev
             </h2>
           </motion.div>
@@ -311,7 +312,7 @@ export const ComponentScroll = ({
           >
             <div className="flex items-center gap-2 sm:gap-4 md:gap-8 mx-auto w-full justify-around h-full py-1">
               <div className="flex flex-col items-center">
-                <span className="text-[#967131] font-bold text-[6px] sm:text-[8px] md:text-xs uppercase whitespace-nowrap text-center leading-tight">
+                <span className="text-[#967131]  font-bold text-[6px] sm:text-[8px] md:text-xs uppercase whitespace-nowrap text-center leading-tight">
                   Ministry of Communications
                   <br />
                   and Information Technology
