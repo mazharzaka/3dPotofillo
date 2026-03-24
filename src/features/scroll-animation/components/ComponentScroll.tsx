@@ -31,13 +31,14 @@ export const ComponentScroll = ({
 
   const [loadedCount, setLoadedCount] = useState(0);
   const [allLoaded, setAllLoaded] = useState(false);
-  const [mobileHeight, setMobileHeight] = useState<number | null>(null);
-  const [coverScale, setCoverScale] = useState(1);
 
   const seqs =
     sequences || (folder && totalFrames ? [{ folder, totalFrames }] : []);
   const TOTAL_FRAMES = seqs.reduce((acc, s) => acc + s.totalFrames, 0);
-  const scrollHeight = `${seqs.length > 0 ? seqs.length * 400 : 400}vh`;
+
+  const baseScrollVh = seqs.length > 0 ? seqs.length * 400 : 400;
+  const scrollHeight = `${baseScrollVh + 100}vh`;
+  const animationEndRatio = (baseScrollVh - 100) / baseScrollVh;
 
   const pad = (n: number) => String(n).padStart(3, "0");
   const frameSrc = (i: number) => {
@@ -67,63 +68,54 @@ export const ComponentScroll = ({
   );
   const [scrollHintOpacity, setScrollHintOpacity] = useState(1);
 
-  /* ── Draw frame with "cover" fit (fills entire screen, no bars) ── */
+  /* ── Draw frame — manual object-fit:cover in physical pixels ── */
   const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
-    const img = framesRef.current[index];
+    const img   = framesRef.current[index];
     if (!canvas || !img || !img.complete || !img.naturalWidth) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio ?? 1;
-    const cw = canvas.width / dpr;
-    const ch = canvas.height / dpr;
+    // canvas.width / canvas.height are already in PHYSICAL pixels (set by resizeCanvas)
+    const cw = canvas.width;   // physical px
+    const ch = canvas.height;  // physical px
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    // Cover scale: whichever axis fills the canvas completely
+    const scale = Math.max(cw / iw, ch / ih);
+
+    // Destination size (scaled image in physical px)
+    const dw = iw * scale;
+    const dh = ih * scale;
+
+    // Center offset so the image is cropped symmetrically
+    const dx = (cw - dw) / 2;
+    const dy = (ch - dh) / 2;
 
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, 0, 0, cw, ch);
+    ctx.drawImage(img, dx, dy, dw, dh);
   }, []);
 
-  /* ── Resize canvas (DPR-aware, fills viewport) ── */
+  /* ── Resize canvas — always full viewport × DPR (handles address-bar changes) ── */
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    if (ctx) ctx.setTransform(1, 0, 0, 1, 0, 0);
-
     const dpr = window.devicePixelRatio ?? 1;
-    const w = window.innerWidth;
-    const isMobile = w < 768;
+    const cssW = window.innerWidth;   // dynamic — tracks address bar hide/show
+    const cssH = window.innerHeight;
 
-    // Get image dimensions or fallback to 16:9
-    const img = framesRef.current[0];
-    const iw = img?.naturalWidth || 1920;
-    const ih = img?.naturalHeight || 1080;
+    // Physical pixel dimensions (sharp on Retina/OLED)
+    canvas.width  = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
 
-    // Mobile wrapper matches image aspect ratio exactly
-    const h = isMobile ? w * (ih / iw) : window.innerHeight;
+    // CSS size — canvas element fills the full viewport
+    canvas.style.width  = cssW + "px";
+    canvas.style.height = cssH + "px";
 
-    if (isMobile) {
-      setMobileHeight(h);
-    } else {
-      setMobileHeight(null);
-    }
-
-    // Set canvas dimensions to fit strictly inside the screen ("contain")
-    const containScale = Math.min(w / iw, h / ih);
-    const canvasCssWidth = iw * containScale;
-    const canvasCssHeight = ih * containScale;
-
-    // Calculate scale factor to make the contained canvas "cover" the screen
-    setCoverScale(Math.max(w / canvasCssWidth, h / canvasCssHeight));
-
-    canvas.width = canvasCssWidth * dpr;
-    canvas.height = canvasCssHeight * dpr;
-    canvas.style.width = canvasCssWidth + "px";
-    canvas.style.height = canvasCssHeight + "px";
-
-    if (ctx) ctx.scale(dpr, dpr);
+    // NOTE: we work in physical pixels inside drawFrame, so no ctx.scale() needed here
     drawFrame(currentFrameRef.current);
   }, [drawFrame]);
 
@@ -170,7 +162,14 @@ export const ComponentScroll = ({
     offset: ["start start", "end end"],
   });
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+  const animationProgress = useTransform(
+    scrollYProgress,
+    [0, animationEndRatio],
+    [0, 1],
+  );
+
+  useMotionValueEvent(animationProgress, "change", (latest) => {
+    latest = Math.min(1, Math.max(0, latest));
     // Frame
     const frameIndex = Math.min(
       TOTAL_FRAMES - 1,
@@ -206,22 +205,18 @@ export const ComponentScroll = ({
     >
       {/* ── Sticky viewport ── */}
       <div
-        className="sticky w-screen flex items-center justify-center bg-transparent"
-        style={{
-          height: mobileHeight ? `${mobileHeight}px` : "100vh",
-          top: mobileHeight ? "50vh" : "0",
-          transform: mobileHeight ? "translateY(-50%)" : "none",
-        }}
+        className="sticky top-0 w-screen overflow-hidden bg-transparent"
+        style={{ height: "100dvh" }}
       >
         {/* ── Certificate Background SVG ── */}
         <motion.div
           className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none"
           style={{
-            opacity: useTransform(scrollYProgress, [0.85, 1], [0, 1]),
+            opacity: useTransform(animationProgress, [0.85, 1], [0, 1]),
             backgroundImage:
               "radial-gradient(#cca362 0.5px, transparent 0.5px), radial-gradient(#cca362 0.5px, #050532 0.5px)",
             backgroundSize: "20px 20px",
-            backgroundPosition: "0 0, 10px 10px",
+            backgroundPosition: "0px 0px, 10px 10px",
           }}
         >
           {/* Abstract SVG Background */}
@@ -250,19 +245,17 @@ export const ComponentScroll = ({
         {/* Canvas — full bleed, no borders, scaled down at the end */}
         <motion.canvas
           ref={canvasRef}
-          className="absolute inset-0 mx-auto my-auto z-10"
+          className="absolute inset-0 z-10 block"
           style={{
-            display: "block",
-            scale: useTransform(scrollYProgress, [0.85, 1], [coverScale, 0.6]),
+            scale: useTransform(animationProgress, [0.85, 1], [1, 0.6]),
             borderRadius: useTransform(
-              scrollYProgress,
+              animationProgress,
               [0.85, 1],
               ["0px", "1.5rem"],
             ),
-
             transformOrigin: "center center",
             boxShadow: useTransform(
-              scrollYProgress,
+              animationProgress,
               [0.85, 1],
               ["0px 0px 0px rgba(0,0,0,0)", "0px 25px 80px rgba(0,0,0,0.8)"],
             ),
@@ -273,12 +266,12 @@ export const ComponentScroll = ({
         <motion.div
           className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden pointer-events-none"
           style={{
-            opacity: useTransform(scrollYProgress, [0.85, 1], [0, 1]),
+            opacity: useTransform(animationProgress, [0.85, 1], [0, 1]),
           }}
         >
           <motion.div
             className="absolute left-[-2%] sm:left-[2%] md:left-[4%] flex flex-col justify-center"
-            style={{ x: useTransform(scrollYProgress, [0.85, 1], [-80, 0]) }}
+            style={{ x: useTransform(animationProgress, [0.85, 1], [-80, 0]) }}
           >
             <h1
               style={{ color: "#cca362" }}
@@ -293,7 +286,7 @@ export const ComponentScroll = ({
 
           <motion.div
             className="absolute right-[-2%] sm:right-[2%] md:right-[4%] flex flex-col justify-center items-end text-right"
-            style={{ x: useTransform(scrollYProgress, [0.85, 1], [80, 0]) }}
+            style={{ x: useTransform(animationProgress, [0.85, 1], [80, 0]) }}
           >
             <h1
               style={{ color: "#cca362" }}
@@ -308,7 +301,7 @@ export const ComponentScroll = ({
 
           <motion.div
             className="absolute top-[4%] md:top-[6%] h-12 md:h-16 lg:h-20 bg-white w-[90%] md:w-[70%] max-w-5xl flex items-center justify-between px-2 sm:px-4 md:px-10 rounded shadow-xl"
-            style={{ y: useTransform(scrollYProgress, [0.85, 1], [-50, 0]) }}
+            style={{ y: useTransform(animationProgress, [0.85, 1], [-50, 0]) }}
           >
             <div className="flex items-center gap-2 sm:gap-4 md:gap-8 mx-auto w-full justify-around h-full py-1">
               <div className="flex flex-col items-center">
@@ -339,7 +332,7 @@ export const ComponentScroll = ({
 
           <motion.div
             className="absolute bottom-[4%] md:bottom-[6%] flex flex-col items-center justify-center w-full"
-            style={{ y: useTransform(scrollYProgress, [0.85, 1], [50, 0]) }}
+            style={{ y: useTransform(animationProgress, [0.85, 1], [50, 0]) }}
           >
             <p className="text-base sm:text-xl md:text-3xl lg:text-4xl font-bold text-white tracking-widest mb-1 md:mb-2 font-sans text-center">
               08/12/2024 - 21/01/2025

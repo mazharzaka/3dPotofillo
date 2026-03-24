@@ -1,11 +1,14 @@
 import { Header } from "@/components/Header";
+import { StickyImage } from "@/components/StickyImage";
+import WorkExper from "@/components/WorkExper";
+import MyProjects from "@/components/MyProjects";
 import { ComponentScroll } from "@/features/scroll-animation/components/ComponentScroll";
 import { BEATSHero } from "@/features/scroll-animation/dummydata/data";
 
 export default function Home() {
   return (
     <main>
-      <Header />
+      {/* <Header /> */}
       <ComponentScroll
         sequences={[
           { folder: "video-split", totalFrames: 168 },
@@ -14,6 +17,9 @@ export default function Home() {
         ]}
         BEATS={BEATSHero}
       />
+      <StickyImage />
+      <WorkExper />
+      <MyProjects />
     </main>
   );
 }

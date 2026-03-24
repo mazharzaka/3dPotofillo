@@ -37,4 +37,42 @@ const BEATSHero = [
   },
 ];
 
-export { BEATSHero };
+const ExperienData = [
+  {
+    id: 1,
+    company: "Bit 68",
+    role: "Front End",
+    description: `Frontend Developer at bit68 with a proven track record of building
+          high-impact digital solutions. I’ve had the opportunity to work on
+          industry-leading platforms including <span>Paymob</span>,
+          <span> Basata</span>, <span>GTO</span>, <span>Posh Saver</span> and
+          <span> Ejaby</span>. I specialize in creating seamless user experiences
+          using modern web technologies, ensuring that every line of code adds
+          value to the product and the user`,
+    date: "2025-Present",
+    href: "#",
+    logo: "/bit68.png",
+  },
+  {
+    id: 2,
+    company: "National Telecommunication Institute (NTI)",
+    role: "Full-Stack Web Development (MEAN Stack)",
+    description: `Completed an intensive professional training program focused on building dynamic web applications. Mastered the <span>MEAN Stack</span> (MongoDB, Express.js, Angular, and Node.js), covering everything from database design to building responsive front-end interfaces and RESTful APIs.
+    Developed a <span>E-commerce Website</span> as a graduation project using the MEAN stack
+    `,
+    date: "2024",
+    logo: "/nti.png",
+    href: "#",
+  },
+  {
+    id: 3,
+    company: "Web Development Specialization",
+    role: "Egypt FWD (Powered by Udacity)",
+    description: `Completed a comprehensive <span>Front-End Web Development</span> program, mastering modern web technologies and best practices. Gained hands-on experience in building responsive, user-centric web applications using HTML, CSS, JavaScript, and modern frameworks. Developed a strong foundation in UI/UX principles, version control (Git/GitHub), and agile development methodologies.`,
+    date: "2022",
+    logo: "/fwd.jpg",
+    href: "#",
+  },
+];
+
+export { BEATSHero, ExperienData };
