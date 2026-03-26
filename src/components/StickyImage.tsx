@@ -75,7 +75,7 @@ export function StickyImage() {
           priority
         />
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-8xl  font-extrabold text-shadow-2xs text-white">
+          <h1 className="text-[7vw]  font-extrabold text-shadow-2xs text-white">
             WORK <span className="text-[#cca362]">EXPERIENCE</span>
           </h1>
         </div>
