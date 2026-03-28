@@ -1,84 +1,109 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { motion, useSpring } from "framer-motion";
+import { useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useMotionTemplate,
+} from "framer-motion";
 
-export function StickyImage() {
+export function StickyImage({
+  image1,
+  image2,
+  title,
+}: {
+  image1: string;
+  image2: string;
+  title: string;
+}) {
   const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Custom cursor position
-  const cursorX = useSpring(-100, { damping: 40, stiffness: 400 });
-  const cursorY = useSpring(-100, { damping: 40, stiffness: 400 });
+  // Track raw mouse coordinates
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      cursorX.set(e.clientX - 60);
-      cursorY.set(e.clientY - 60);
-    };
+  // Apply different spring-physics for a trailing fluid effect
+  // Primary (fastest) - guides the mask and the leading color
+  const springX1 = useSpring(mouseX, { damping: 15, stiffness: 400 });
+  const springY1 = useSpring(mouseY, { damping: 15, stiffness: 400 });
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [cursorX, cursorY]);
+  // Secondary - creates a fluid trail
+  const springX2 = useSpring(mouseX, { damping: 24, stiffness: 200 });
+  const springY2 = useSpring(mouseY, { damping: 24, stiffness: 200 });
 
-  const text = "WORK EXPERIENCE • WORK EXPERIENCE • ";
+  // Tertiary (slowest) - completes the trailing fluid tail
+  const springX3 = useSpring(mouseX, { damping: 35, stiffness: 100 });
+  const springY3 = useSpring(mouseY, { damping: 35, stiffness: 100 });
+
+  // Generate the dynamic mask-image CSS value
+  // Raised to 700px mask to make the second image VERY clear and have a massive reveal
+  const maskImage = useMotionTemplate`radial-gradient(700px at ${springX1}px ${springY1}px, black 0%, transparent 100%)`;
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    // Calculate mouse position relative to the container
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  };
 
   return (
     <section
-      className="relative z-50 w-full min-h-screen bg-slate-950 flex items-center justify-center -mt-[100vh] cursor-none overflow-hidden"
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      className="relative z-40 w-full h-screen cursor-none overflow-hidden bg-slate-950 -mt-[100vh]"
     >
-      {/* Custom Cursor */}
-      <motion.div
-        style={{ x: cursorX, y: cursorY }}
-        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
-        transition={{ duration: 0.2 }}
-        className="fixed top-0 left-0 pointer-events-none z-[100]"
-      >
-        <div className="relative w-[120px] h-[120px] flex items-center justify-center">
-          {/* The circular text */}
-          <motion.div
-            className="absolute w-full h-full flex items-center justify-center"
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, ease: "linear", duration: 10 }}
-          >
-            {text.split("").map((char, i, arr) => (
-              <span
-                key={i}
-                className="absolute text-white font-mono text-[15px] uppercase font-bold tracking-[0.2em]"
-                style={{
-                  transform: `rotate(${i * (360 / arr.length)}deg) translateY(-45px)`,
-                }}
-              >
-                {char}
-              </span>
-            ))}
-          </motion.div>
+      {/* Base Image */}
+      <Image src={image1} alt={title} fill className="object-cover" priority />
 
-          {/* Inner circle */}
-          <div
-            className="w-32 h-32 rounded-full border border-white/50 flex items-center justify-center"
-            style={{ backdropFilter: "grayscale(1) sepia(0.3) saturate(1.5)" }}
-          ></div>
-        </div>
+      {/* Revealed Image with Mask */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          WebkitMaskImage: maskImage,
+          maskImage: maskImage,
+        }}
+      >
+        <Image src={image2} alt={title} fill className="object-cover" />
       </motion.div>
 
-      <div className="relative w-full h-screen">
-        <Image
-          src="/stiky.jpg"
-          alt="Sticky"
-          fill
-          className="object-cover"
-          priority
+      {/* Amazing Colors Fluid Cursor Overlay */}
+      {/* Reduced opacity to 30% to ensure image2 remains perfectly clear beneath the effect */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none mix-blend-screen"
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Leading Cyan Blob */}
+        <motion.div
+          className="absolute rounded-full w-[500px] h-[500px] bg-cyan-400/30 blur-[100px]"
+          style={{ x: springX1, y: springY1, marginLeft: "-250px", marginTop: "-250px" }}
         />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-[7vw]  font-extrabold text-shadow-2xs text-white">
-            WORK <span className="text-[#cca362]">EXPERIENCE</span>
-          </h1>
-        </div>
+        {/* Trailing Fuchsia Blob */}
+        <motion.div
+          className="absolute rounded-full w-[400px] h-[400px] bg-fuchsia-500/30 blur-[100px]"
+          style={{ x: springX2, y: springY2, marginLeft: "-200px", marginTop: "-200px" }}
+        />
+        {/* Slowest Amber Blob */}
+        <motion.div
+          className="absolute rounded-full w-[300px] h-[300px] bg-amber-400/30 blur-[100px]"
+          style={{ x: springX3, y: springY3, marginLeft: "-150px", marginTop: "-150px" }}
+        />
+      </motion.div>
+
+      {/* Title */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+        <h1
+          className="text-[7vw] font-extrabold text-shadow-2xs text-white mix-blend-overlay"
+          dangerouslySetInnerHTML={{ __html: title }}
+        />
       </div>
     </section>
   );

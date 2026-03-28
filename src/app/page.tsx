@@ -17,7 +17,11 @@ export default function Home() {
         ]}
         BEATS={BEATSHero}
       />
-      <StickyImage />
+      <StickyImage
+        image1="/work.png"
+        image2="/spider.png"
+        title="WORK <span class='text-[#cca362]'>EXPERIENCE</span>"
+      />
       <WorkExper />
       {/* make my project section responsive */}
       <MyProjects />
