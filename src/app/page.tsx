@@ -19,6 +19,7 @@ export default function Home() {
       />
       <StickyImage />
       <WorkExper />
+      {/* make my project section responsive */}
       <MyProjects />
     </main>
   );

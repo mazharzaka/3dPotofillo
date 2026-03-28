@@ -1,40 +1,46 @@
-/* ── Section: provides scroll distance for the animation ── */
+/* ── Section: Sticky Scroll Showcase ── */
 .section {
-  height: 200vh;
+  height: 800vh;
+  /* Scroll duration for all projects */
   position: relative;
   background-image: url("/project.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  overflow: visible;
+  /* Need overflow visible for sticky to work correctly */
 }
 
 .section::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(2, 6, 23, 0.75);
+  background: radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.95));
   pointer-events: none;
 }
 
-/* ── Sticky 300px viewport ── */
+/* ── Sticky Container ── */
 .stickyWrap {
   position: sticky;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 300px;
-  overflow: visible;
+  top: 0;
+  width: 100%;
+  height: 100vh;
   z-index: 10;
-  margin-top: 202px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ── Section heading ── */
+/* ── Section heading ─ (Moved inside stickyWrap) ── */
 .heading {
   position: absolute;
-  top: -60px;
-  left: 4vw;
+  top: 60px;
+  left: 60px;
   display: flex;
   align-items: center;
   gap: 14px;
+  z-index: 20;
 }
 
 .headingDot {
@@ -53,61 +59,96 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* ── Horizontal track ── */
+/* ── Sequential track ── */
 .track {
-  display: flex;
-  gap: 36px;
+  position: relative;
+  width: 100%;
   height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  will-change: transform;
+}
+
+/* ─────────── PROJECT ITEM WRAPPER ─────────── */
+.projectItem {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 650px;
+  /* Constrain card width */
+}
+
+/* Alignment Classes */
+.cardLeft {
+  align-self: flex-start;
+}
+
+.cardCenter {
+  align-self: center;
+}
+
+.cardRight {
+  align-self: flex-end;
+}
+
+/* ── Project Label (Above Card) ── */
+.projectLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(204, 163, 98, 0.8);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.projectLabel::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: rgba(204, 163, 98, 0.15);
+  max-width: 40px;
 }
 
 /* ─────────── CARD ─────────── */
 .card {
   position: relative;
-  flex: 0 0 400px;
-  height: 280px;
-  border-radius: 20px;
-  background: linear-gradient(
-    160deg,
-    rgba(12, 12, 60, 0.9),
-    rgba(5, 5, 30, 0.95)
-  );
-  border: 1px solid rgba(204, 163, 98, 0.12);
-  backdrop-filter: blur(24px);
+  width: clamp(300px, 55.556vw, 650px);
+  height: 480px;
+  /* Taller cards for vertical look */
+  border-radius: 4px;
+  /* Sharper corners like the reference */
+  background: rgba(12, 12, 60, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
   overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  transition:
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .card:hover {
-  border-color: rgba(204, 163, 98, 0.4);
-  box-shadow:
-    0 0 40px rgba(204, 163, 98, 0.1),
-    0 24px 60px rgba(0, 0, 0, 0.5);
+  border-color: rgba(204, 163, 98, 0.3);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
-/* ── Shimmer sweep on hover ── */
+/* ── Shimmer ── */
 .shimmer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(204, 163, 98, 0.06) 45%,
-    rgba(204, 163, 98, 0.12) 50%,
-    rgba(204, 163, 98, 0.06) 55%,
-    transparent 60%
-  );
+  background: linear-gradient(105deg,
+      transparent 40%,
+      rgba(204, 163, 98, 0.04) 45%,
+      rgba(204, 163, 98, 0.08) 50%,
+      rgba(204, 163, 98, 0.04) 55%,
+      transparent 60%);
   transform: translateX(-100%);
   transition: transform 0.8s ease;
   pointer-events: none;
-  z-index: 1;
+  z-index: 5;
 }
 
 .card:hover .shimmer {
@@ -117,104 +158,61 @@
 /* ── Image area ── */
 .imageWrap {
   position: relative;
-  height: 110px;
+  flex: 1;
   overflow: hidden;
-  flex-shrink: 0;
-}
-
-.imageWrap::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to top, rgba(5, 5, 30, 1), transparent);
-  pointer-events: none;
 }
 
 .projectImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.7) saturate(1.2);
-  transition:
-    filter 0.4s ease,
-    transform 0.5s ease;
+  filter: grayscale(0.4) brightness(0.8);
+  transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover .projectImage {
-  filter: brightness(0.85) saturate(1.3);
-  transform: scale(1.06);
+  filter: grayscale(0) brightness(1);
+  transform: scale(1.05);
 }
 
 /* ── Card content ── */
 .content {
-  padding: 16px 22px 18px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  position: relative;
-  z-index: 2;
+  padding: 30px;
+  background: rgba(2, 6, 23, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 500;
   color: #fff;
-  margin: 0 0 6px;
-  letter-spacing: 0.3px;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
 }
 
 .description {
-  font-size: 12.5px;
+  font-size: 14px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.55);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 20px;
 }
 
-/* ── Tags row ── */
+/* ── Tags column (overlay or bottom) ── */
 .tags {
   display: flex;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 10px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .tag {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  color: #cca362;
-  background: rgba(204, 163, 98, 0.08);
-  border: 1px solid rgba(204, 163, 98, 0.15);
-  padding: 3px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-  transition:
-    background 0.3s ease,
-    border-color 0.3s ease;
-}
-
-.card:hover .tag {
-  background: rgba(204, 163, 98, 0.14);
-  border-color: rgba(204, 163, 98, 0.3);
-}
-
-/* ── Corner number badge ── */
-.number {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(204, 163, 98, 0.35);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 2px;
+  text-transform: uppercase;
   letter-spacing: 1px;
-  z-index: 3;
 }
 
 /* ── Ambient particles ── */
@@ -227,58 +225,51 @@
 
 .particle {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 2px;
+  height: 2px;
+  background: rgba(204, 163, 98, 0.15);
   border-radius: 50%;
-  background: rgba(204, 163, 98, 0.2);
-  animation: drift 7s ease-in-out infinite;
+  animation: float 20s linear infinite;
 }
 
-.particle:nth-child(1) {
-  top: 12%;
-  left: 10%;
-}
-.particle:nth-child(2) {
-  top: 65%;
-  left: 30%;
-}
-.particle:nth-child(3) {
-  top: 25%;
-  left: 55%;
-}
-.particle:nth-child(4) {
-  top: 75%;
-  left: 75%;
-}
-.particle:nth-child(5) {
-  top: 18%;
-  left: 90%;
-}
-
-@keyframes drift {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.2;
+@keyframes float {
+  from {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
   }
-  50% {
-    transform: translateY(-18px) scale(1.6);
-    opacity: 0.6;
+
+  to {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0.5;
   }
 }
 
 /* ── Responsive ── */
+@media (max-width: 1024px) {
+  .projectItem {
+    max-width: 80%;
+  }
+}
+
 @media (max-width: 768px) {
-  .card {
-    flex: 0 0 310px;
-    height: 260px;
+  .section {
+    padding: 100px 0;
   }
 
-  .imageWrap {
-    height: 90px;
+  .track {
+    gap: 80px;
+  }
+
+  .projectItem {
+    max-width: 100%;
+    align-self: center !important;
+  }
+
+  .card {
+    height: 400px;
   }
 
   .title {
-    font-size: 16px;
+    font-size: 20px;
   }
 }

@@ -21,7 +21,7 @@ function ExperienceCard({
   };
 
   return (
-    <div 
+    <div
       className={`${styles.container} ${isReversed && styles.reverce}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -36,13 +36,15 @@ function ExperienceCard({
             transform: "translate(-50%, -50%)",
             pointerEvents: "none",
             zIndex: 9999,
+            cursor: "none",
           }}
         >
           <Image
             src={logo}
             alt={`${company} logo`}
-            width={120}
-            height={120}
+            width={50}
+            height={50}
+            priority
             style={{
               borderRadius: "50%",
               objectFit: "cover",

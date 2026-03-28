@@ -71,51 +71,69 @@ export const ComponentScroll = ({
   /* ── Draw frame — manual object-fit:cover in physical pixels ── */
   const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
-    const img   = framesRef.current[index];
+    const img = framesRef.current[index];
     if (!canvas || !img || !img.complete || !img.naturalWidth) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // canvas.width / canvas.height are already in PHYSICAL pixels (set by resizeCanvas)
-    const cw = canvas.width;   // physical px
-    const ch = canvas.height;  // physical px
+    const cw = canvas.width; // physical px
+    const ch = canvas.height; // physical px
     const iw = img.naturalWidth;
     const ih = img.naturalHeight;
+    const isMobile = window.innerWidth < 768;
 
-    // Cover scale: whichever axis fills the canvas completely
-    const scale = Math.max(cw / iw, ch / ih);
-
-    // Destination size (scaled image in physical px)
-    const dw = iw * scale;
-    const dh = ih * scale;
-
-    // Center offset so the image is cropped symmetrically
-    const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
-
+    // Always clear the canvas first
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, dx, dy, dw, dh);
+
+    if (isMobile) {
+      // 1. Draw a blurred background that completely fills the height
+      const scaleCover = Math.max(cw / iw, ch / ih);
+      const dwCover = iw * scaleCover;
+      const dhCover = ih * scaleCover;
+      const dxCover = (cw - dwCover) / 2;
+      const dyCover = (ch - dhCover) / 2;
+
+      ctx.filter = "blur(15px) brightness(0.4)";
+      ctx.drawImage(img, dxCover, dyCover, dwCover, dhCover);
+      ctx.filter = "none";
+
+      // 2. Draw the full uncropped image in the center
+      const scaleContain = Math.min(cw / iw, ch / ih);
+      const dwContain = iw * scaleContain;
+      const dhContain = ih * scaleContain;
+      const dxContain = (cw - dwContain) / 2;
+      const dyContain = (ch - dhContain) / 2;
+
+      ctx.drawImage(img, dxContain, dyContain, dwContain, dhContain);
+    } else {
+      // Desktop: Standard cover strategy (fills entire screen)
+      const scale = Math.max(cw / iw, ch / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      const dx = (cw - dw) / 2;
+      const dy = (ch - dh) / 2;
+
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
   }, []);
 
-  /* ── Resize canvas — always full viewport × DPR (handles address-bar changes) ── */
+  /* ── Resize canvas — read actual CSS layout, set buffer to match × DPR ── */
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Read the ACTUAL rendered CSS size from the layout engine.
+    // CSS (absolute inset-0) handles the visual sizing — we never override it.
+    const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio ?? 1;
-    const cssW = window.innerWidth;   // dynamic — tracks address bar hide/show
-    const cssH = window.innerHeight;
 
-    // Physical pixel dimensions (sharp on Retina/OLED)
-    canvas.width  = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
+    // Set internal buffer to match CSS size × DPR for crisp rendering
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
 
-    // CSS size — canvas element fills the full viewport
-    canvas.style.width  = cssW + "px";
-    canvas.style.height = cssH + "px";
-
-    // NOTE: we work in physical pixels inside drawFrame, so no ctx.scale() needed here
+    // drawFrame works in physical pixels, no ctx.scale() needed
     drawFrame(currentFrameRef.current);
   }, [drawFrame]);
 
@@ -149,11 +167,22 @@ export const ComponentScroll = ({
     framesRef.current = images;
   }, [drawFrame]);
 
-  /* ── Canvas sizing ── */
+  /* ── Canvas sizing (resize + orientation + mobile address bar) ── */
   useEffect(() => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-    return () => window.removeEventListener("resize", resizeCanvas);
+    window.addEventListener("orientationchange", () => {
+      // Small delay lets the browser settle the new viewport dimensions
+      setTimeout(resizeCanvas, 150);
+    });
+    // visualViewport fires when mobile address bar hides/shows (iOS Safari)
+    window.visualViewport?.addEventListener("resize", resizeCanvas);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("orientationchange", resizeCanvas);
+      window.visualViewport?.removeEventListener("resize", resizeCanvas);
+    };
   }, [resizeCanvas]);
 
   /* ── Scroll → frame + beat opacities ── */
@@ -205,7 +234,7 @@ export const ComponentScroll = ({
     >
       {/* ── Sticky viewport ── */}
       <div
-        className="sticky top-0 w-screen overflow-hidden bg-transparent"
+        className="sticky top-0 w-full overflow-hidden bg-transparent"
         style={{ height: "100dvh" }}
       >
         {/* ── Certificate Background SVG ── */}
@@ -245,7 +274,7 @@ export const ComponentScroll = ({
         {/* Canvas — full bleed, no borders, scaled down at the end */}
         <motion.canvas
           ref={canvasRef}
-          className="absolute inset-0 z-10 block"
+          className="absolute top-0 left-0 w-full h-full z-10 block"
           style={{
             scale: useTransform(animationProgress, [0.85, 1], [1, 0.6]),
             borderRadius: useTransform(
@@ -275,11 +304,11 @@ export const ComponentScroll = ({
           >
             <h1
               style={{ color: "#cca362" }}
-              className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
+              className="text-[4.861vw] text-shadow-md  font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
             >
               Digital Egypt
             </h1>
-            <h2 className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
+            <h2 className="text-[4.861vw] text-shadow-md  font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
               Youth Program
             </h2>
           </motion.div>
@@ -290,11 +319,11 @@ export const ComponentScroll = ({
           >
             <h1
               style={{ color: "#cca362" }}
-              className="text-[1.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
+              className="text-[4.861vw] text-shadow-md  font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap mb-1"
             >
               Mean-Stack
             </h1>
-            <h2 className="text-[2.5rem] text-shadow-md sm:text-[2rem] md:text-[3rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
+            <h2 className="text-[4.861vw] text-shadow-md  font-black text-white uppercase leading-[0.8] tracking-tighter whitespace-nowrap">
               Web Dev
             </h2>
           </motion.div>

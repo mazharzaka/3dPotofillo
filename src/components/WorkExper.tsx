@@ -12,6 +12,7 @@ function WorkExper() {
             position: "sticky",
             top: `${100 + index * 40}px`,
             zIndex: index,
+
           }}
         >
           <ExperienceCard

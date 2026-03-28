@@ -1,9 +1,9 @@
 .container {
-  max-width: 1200px;
+  max-width: 83.333vw;
   margin: 0 auto;
   border: 1px solid #b0b0b0;
   border-radius: 10px;
-  padding: 16px;
+  padding: 1.333vw;
   background-color: #050532;
 }
 
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   .title {
-    font-size: 30px;
+    font-size: 2.083vw;
     color: #fff;
     display: flex;
     align-items: center;
@@ -23,7 +23,7 @@
       flex-direction: column;
 
       .company {
-        font-size: 20px;
+        font-size: 1.389vw;
         color: #fff;
         display: flex;
         align-items: center;
@@ -33,17 +33,19 @@
           border-radius: 50%;
           object-fit: cover;
           /* border: 2px solid #fff; */
+          width: clamp(40px, 2.778vw, 60px);
+          height: clamp(40px, 2.778vw, 60px);
         }
       }
       .role {
-        font-size: 15px;
+        font-size: 1.042vw;
         color: #cca362;
       }
     }
 
     span {
       color: #cca362;
-      font-size: 60px;
+      font-size: 4.167vw;
       font-weight: 900;
       font-family: cursive;
     }
@@ -51,12 +53,12 @@
 
   .date {
     padding-right: 10px;
-    font-size: 20px;
+    font-size: 1.389vw;
     color: #cca362;
   }
 }
 .body {
-  font-size: 16px;
+  font-size: 1.111vw;
   color: #fff;
   line-height: 1.6;
   letter-spacing: 0.5px;
@@ -68,12 +70,12 @@
   span {
     color: #cca362;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 1.25vw;
   }
 
   .arrow {
-    width: 80px;
-    height: 80px;
+    width: 5.556vw;
+    height: 5.556vw;
     padding-right: 10px;
   }
   .arrow:hover {
@@ -93,5 +95,73 @@
 
   .body {
     flex-direction: row-reverse;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .container {
+    max-width: 90vw;
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+
+    .title {
+      font-size: 20px;
+      flex-direction: row !important; /* Override reverce */
+
+      .info {
+        .company {
+          font-size: 18px;
+          gap: 8px;
+          
+          .logo {
+            width: 30px;
+            height: 30px;
+          }
+        }
+        .role {
+          font-size: 14px;
+        }
+      }
+
+      span {
+        font-size: 24px;
+      }
+    }
+
+    .date {
+      font-size: 14px;
+      padding-right: 0;
+    }
+  }
+
+  .body {
+    font-size: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 15px;
+    
+    span {
+      font-size: 16px;
+    }
+
+    .arrow {
+      width: 30px;
+      height: 30px;
+      align-self: flex-end;
+    }
+  }
+
+  .reverce .header {
+    flex-direction: column;
+  }
+  .reverce .body {
+    flex-direction: column;
   }
 }
