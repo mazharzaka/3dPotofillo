@@ -6,6 +6,7 @@ import {
   useMotionValueEvent,
   useTransform,
   motion,
+  AnimatePresence,
 } from "framer-motion";
 
 /* ─── Config ─────────────────────────────────────────────── */
@@ -184,6 +185,18 @@ export const ComponentScroll = ({
       window.visualViewport?.removeEventListener("resize", resizeCanvas);
     };
   }, [resizeCanvas]);
+
+  /* ── Block document scroll during load ── */
+  useEffect(() => {
+    if (!allLoaded) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [allLoaded]);
 
   /* ── Scroll → frame + beat opacities ── */
   const { scrollYProgress } = useScroll({
@@ -458,40 +471,69 @@ export const ComponentScroll = ({
           </div>
         </div>
 
-        {/* ── Loading overlay ── */}
-        {!allLoaded && (
-          <div
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-5"
-            style={{ background: "#020617" }}
-          >
-            {/* Spinner */}
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16">
-              <div className="absolute inset-0 rounded-full border-2 border-white/10" />
-              <div className="absolute inset-0 rounded-full border-2 border-t-white/80 border-r-white/10 border-b-transparent border-l-transparent animate-spin" />
-            </div>
-
-            {/* Progress bar */}
-            <div
-              className="w-36 sm:w-48 h-px"
-              style={{ background: "rgba(255,255,255,0.1)" }}
+        {/* ── Loading overlay (Splash Screen) ── */}
+        <AnimatePresence>
+          {!allLoaded && (
+            <motion.div
+              layout
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[#020617]"
             >
-              <div
-                className="h-full transition-all duration-150"
-                style={{
-                  width: `${loadingPercent}%`,
-                  background: "rgba(255,255,255,0.6)",
-                }}
-              />
-            </div>
+              {/* Background Glows */}
+              <div className="absolute top-[20%] left-[20%] w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
+              <div className="absolute bottom-[20%] right-[20%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '5s' }} />
+              
+              {/* Main Content */}
+              <div className="relative z-10 flex flex-col items-center gap-12">
+                {/* Brand Name */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="flex flex-col items-center gap-3"
+                >
+                  <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-gray-200 to-gray-500 tracking-tighter uppercase font-sans drop-shadow-2xl">
+                    Mazhar
+                  </h1>
+                  <motion.div 
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "100%" }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="h-[1px] bg-gradient-to-r from-transparent via-gray-400 to-transparent w-full"
+                  />
+                  <p className="text-[10px] md:text-sm tracking-[0.5em] text-gray-400 uppercase font-semibold mt-2">
+                    Portfolio Experience
+                  </p>
+                </motion.div>
 
-            <span
-              className="text-[10px] sm:text-xs tracking-[0.3em] uppercase tabular-nums"
-              style={{ color: "rgba(255,255,255,0.35)" }}
-            >
-              {loadingPercent}%
-            </span>
-          </div>
-        )}
+                {/* Modern Progress Container */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
+                  className="flex flex-col items-center gap-4 w-64 md:w-80"
+                >
+                  {/* Progress Text */}
+                  <div className="flex justify-between w-full text-xs font-semibold text-gray-400 tracking-widest uppercase">
+                    <span className="animate-pulse">Loading Assets</span>
+                    <span className="text-white tabular-nums drop-shadow-md">{loadingPercent}%</span>
+                  </div>
+
+                  {/* Progress Bar Track */}
+                  <div className="h-[2px] w-full bg-white/10 rounded-full overflow-hidden relative shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                    {/* Progress Fill */}
+                    <div
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-white transition-all duration-300 ease-out"
+                      style={{ width: `${loadingPercent}%` }}
+                    />
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
