@@ -5,6 +5,8 @@ import MyProjects from "@/components/MyProjects";
 import { ComponentScroll } from "@/features/scroll-animation/components/ComponentScroll";
 import { BEATSHero } from "@/features/scroll-animation/dummydata/data";
 import MySkillsCard from "@/ui/MySkills";
+import { frontendSkills, backendSkills } from "@/ui/MySkills/data";
+import { Footer } from "@/features/footer/components/Footer";
 
 export default function Home() {
   return (
@@ -28,11 +30,12 @@ export default function Home() {
 
       <StickyImage
         image1="/skills1.png"
-        image2="/skills2.png"
+        image2="/skills3.png"
         title="MY <span class='text-[#cca362]'>SKILLS</span>"
       />
-      <MySkillsCard />
-      <MySkillsCard isReverse={true} />
+      <MySkillsCard skillsData={frontendSkills} />
+      <MySkillsCard skillsData={backendSkills} isReverse={true} />
+      <Footer />
     </main>
   );
 }

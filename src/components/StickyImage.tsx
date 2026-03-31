@@ -40,7 +40,7 @@ export function StickyImage({
 
   // Generate the dynamic mask-image CSS value
   // Raised to 700px mask to make the second image VERY clear and have a massive reveal
-  const maskImage = useMotionTemplate`radial-gradient(700px at ${springX1}px ${springY1}px, black 0%, transparent 100%)`;
+  const maskImage = useMotionTemplate`radial-gradient(700px at ${springX1}px ${springY1}px, black 0%, black 80%, transparent 100%)`;
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -84,17 +84,32 @@ export function StickyImage({
         {/* Leading Cyan Blob */}
         <motion.div
           className="absolute rounded-full w-[500px] h-[500px] bg-cyan-400/30 blur-[100px]"
-          style={{ x: springX1, y: springY1, marginLeft: "-250px", marginTop: "-250px" }}
+          style={{
+            x: springX1,
+            y: springY1,
+            marginLeft: "-250px",
+            marginTop: "-250px",
+          }}
         />
         {/* Trailing Fuchsia Blob */}
         <motion.div
           className="absolute rounded-full w-[400px] h-[400px] bg-fuchsia-500/30 blur-[100px]"
-          style={{ x: springX2, y: springY2, marginLeft: "-200px", marginTop: "-200px" }}
+          style={{
+            x: springX2,
+            y: springY2,
+            marginLeft: "-200px",
+            marginTop: "-200px",
+          }}
         />
         {/* Slowest Amber Blob */}
         <motion.div
           className="absolute rounded-full w-[300px] h-[300px] bg-amber-400/30 blur-[100px]"
-          style={{ x: springX3, y: springY3, marginLeft: "-150px", marginTop: "-150px" }}
+          style={{
+            x: springX3,
+            y: springY3,
+            marginLeft: "-150px",
+            marginTop: "-150px",
+          }}
         />
       </motion.div>
 
