@@ -54,6 +54,39 @@ const projectsData: IProject[] = [
     category: "Freelance",
     year: "2026",
   },
+  {
+    id: 5,
+    title: "monex App",
+    description:
+      "wasl is e-commerce platform for selling and buying products",
+    tags: ["React Native ", "TypeScript", "Node.js", "MongoDB", "express", "jwt"],
+    image: "/projects/monex.png",
+    href: "#",
+    category: "Training",
+    year: "2026",
+  },
+  {
+    id: 6,
+    title: "E-commerce App",
+    description:
+      "wasl is e-commerce platform for selling and buying products",
+    tags: ["React Native ", "TypeScript", "Node.js", "MongoDB", "express", "jwt"],
+    image: "/projects/ecomm.jpg",
+    href: "#",
+    category: "Training",
+    year: "2025",
+  },
+  {
+    id: 7,
+    title: "Charity",
+    description:
+      "Charity is a comprehensive platform for selling and buying products",
+    tags: ["React vite", "TypeScript", "Node.js", "MongoDB", "express", "jwt"],
+    image: "/projects/Charity.png",
+    href: "#",
+    category: "Training",
+    year: "2024",
+  },
 ];
 
 export default projectsData;

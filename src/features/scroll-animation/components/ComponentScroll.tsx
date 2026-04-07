@@ -430,18 +430,17 @@ export const ComponentScroll = ({
 
               {/* CTA */}
               {beat.cta && (
-                <button
-                  className="pointer-events-auto mt-6 sm:mt-8 px-6 sm:px-10 py-3 sm:py-4 rounded-full
+
+                <a href="/Mazhar_Mohamed_CV.pdf" download="Mazhar_Mohamed_CV.pdf" className="pointer-events-auto mt-6 sm:mt-8 px-6 sm:px-10 py-3 sm:py-4 rounded-full
                            text-xs sm:text-sm font-semibold border border-white/20 backdrop-blur-md
                            hover:bg-white/10 hover:border-white/40 active:scale-95
                            transition-all duration-300 cursor-pointer"
                   style={{
                     color: "rgba(255,255,255,0.9)",
                     background: "rgba(255,255,255,0.06)",
-                  }}
-                >
+                  }}>
                   {beat.cta}
-                </button>
+                </a>
               )}
             </div>
           ))}
@@ -484,11 +483,11 @@ export const ComponentScroll = ({
               {/* Background Glows */}
               <div className="absolute top-[20%] left-[20%] w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
               <div className="absolute bottom-[20%] right-[20%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '5s' }} />
-              
+
               {/* Main Content */}
               <div className="relative z-10 flex flex-col items-center gap-12">
                 {/* Brand Name */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, ease: "easeOut" }}
@@ -497,7 +496,7 @@ export const ComponentScroll = ({
                   <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-gray-200 to-gray-500 tracking-tighter uppercase font-sans drop-shadow-2xl">
                     Mazhar
                   </h1>
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: "100%" }}
                     transition={{ delay: 0.5, duration: 0.8 }}
@@ -509,7 +508,7 @@ export const ComponentScroll = ({
                 </motion.div>
 
                 {/* Modern Progress Container */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.8 }}

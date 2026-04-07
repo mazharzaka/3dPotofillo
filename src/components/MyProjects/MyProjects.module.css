@@ -19,6 +19,16 @@
   pointer-events: none;
 }
 
+.number {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 5;
+  color: #cca362;
+}
+
 /* ── Sticky Container ── */
 .stickyWrap {
   position: sticky;
@@ -116,7 +126,7 @@
 .card {
   position: relative;
   width: clamp(300px, 55.556vw, 650px);
-  height: 480px;
+  min-height: 480px;
   /* Taller cards for vertical look */
   border-radius: 4px;
   /* Sharper corners like the reference */
@@ -159,7 +169,7 @@
 .imageWrap {
   position: relative;
   flex: 1;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .projectImage {
